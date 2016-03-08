@@ -1,0 +1,86 @@
+---
+title: "PML Final Project"
+author: "sangndp"
+date: "March 8, 2016"
+output: html_document
+---
+## INTRODUCTION
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+The training data for this project are available here: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+The test data are available here: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har. If you use the document you create for this class for any purpose please cite them as they have been very generous in allowing their data to be used for this kind of assignment.
+
+Loading some packages.
+```{r, results='h'}
+library(randomForest)
+library(rpart.plot)
+library(rpart)
+library(caret)
+```
+
+## 1. GETTING & CLEANING DATA
+
+In this step, loading data, removing columns which have NA value and deleting the first 7 attribute which is irrevelant.
+```{r, results='hide'}
+train_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", sep = ",", header = TRUE)
+test_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", sep = ",", header = TRUE)
+
+train_data <- train_data[, colSums(is.na(train_data)) == 0] # remove column with NA value
+train_data <- train_data[, -c(1:7)] # remove the 7 first variables which is irrevelant with the 'class' attribute
+
+test_data <- test_data[, colSums(is.na(test_data)) == 0] # remove column with NA value
+test_data <- test_data[, -c(1:7)] # remove the 7 first variables which is irrevelant with the 'class' attribute
+```
+
+Now, take a look at data. We can see that the proportition of each class is not much different.
+```{r}
+table(train_data$classe)
+plot(train_data$classe, col = "blue", xlab = "Classe", ylab = "Frequency", main = "The frequency of each classe level")
+```
+## 2. Partitioning the training data set into subtrain and subtest data sets.
+In this step, we seperate the train_data into subtrain and subtest data sets.
+```{r}
+intrain <- createDataPartition(train_data$classe, p = 0.75, list = FALSE)
+subtrain <- train_data[intrain,]
+subtest <- train_data[-intrain,]
+```
+
+## 3. Building models
+Firstly, we build some models on the subtrain data set and then test it on the subtest data set. Next step, we choose the model which had the highest accuracy. Finally, applying that model to the test_data (to predict the classe).
+
+Begining with decision tree model.
+```{r}
+mdl1 <- rpart(classe ~., data = subtrain, method = "class")
+pred1 <- predict(mdl1, subtest, type = "class")
+confusionMatrix(pred1, subtest$classe)
+```
+And then, we apply random forest model to the data set.
+```{r}
+mdl2 <- randomForest(classe ~., data = subtrain, importance = TRUE, ntree = 500)
+pred2 <- predict(mdl2, subtest)
+confusionMatrix(pred2, subtest$classe)
+```
+
+Now, let's compare the accuray between two models.
+```{r}
+accuracy1 <- postResample(pred1, subtest$classe)
+accuracy2 <- postResample(pred2, subtest$classe)
+
+accuracy1
+accuracy2
+```
+We can see that the accuracy of the second model (random forest model) is higher than the first one so we choose the mdl2 model to predict the classe of the test_data.
+```{r}
+final_predict <- predict(mdl2, test_data)
+final_predict
+```
+
+## APPENDIX
+Decision tree plot
+```{r}
+rpart.plot(mdl1, main = "Tree")
+```
