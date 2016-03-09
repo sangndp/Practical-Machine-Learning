@@ -223,8 +223,8 @@ library(caret)
 
 <p>In this step, loading data, removing columns which have NA value and deleting the first 7 attribute which is irrevelant.</p>
 
-<pre><code class="r, results=&#39;hide&#39;">train_data &lt;- read.table(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;, sep = &quot;,&quot;, header = TRUE)
-test_data &lt;- read.table(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;, sep = &quot;,&quot;, header = TRUE)
+<pre><code class="r, results=&#39;hide&#39;">train_data &lt;- read.table(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;, sep = &quot;,&quot;, na.strings=c(&quot;#DIV/0&quot;, &quot; &quot;, &quot;NA&quot;), header = TRUE)
+test_data &lt;- read.table(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;, sep = &quot;,&quot;, na.strings=c(&quot;#DIV/0&quot;, &quot; &quot;, &quot;NA&quot;), header = TRUE)
 
 train_data &lt;- train_data[, colSums(is.na(train_data)) == 0] # remove column with NA value
 train_data &lt;- train_data[, -c(1:7)] # remove the 7 first variables which is irrevelant with the &#39;class&#39; attribute
