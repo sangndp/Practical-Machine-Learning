@@ -78,6 +78,7 @@ We can see that the accuracy of the second model (random forest model) is higher
 final_predict <- predict(mdl2, test_data)
 final_predict
 ```
+The estimated error rate is less than 1%.
 
 ## APPENDIX
 Decision tree plot
