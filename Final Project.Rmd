@@ -26,8 +26,8 @@ library(caret)
 
 In this step, loading data, removing columns which have NA value and deleting the first 7 attribute which is irrevelant.
 ```{r, results='hide'}
-train_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", sep = ",", header = TRUE)
-test_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", sep = ",", header = TRUE)
+train_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", sep = ",", na.strings=c('#DIV/0', '', 'NA'), header = TRUE)
+test_data <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", sep = ",", na.strings=c('#DIV/0', '', 'NA'), header = TRUE)
 
 train_data <- train_data[, colSums(is.na(train_data)) == 0] # remove column with NA value
 train_data <- train_data[, -c(1:7)] # remove the 7 first variables which is irrevelant with the 'class' attribute
